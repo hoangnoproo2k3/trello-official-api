@@ -14,9 +14,16 @@ const START_SERVER = () => {
   app.use('/v1', APIs_V1)
   // Middleware handle error
   app.use(errorHandlingMiddleware)
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`3. Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
-  })
+  if (env.BUILD_MODE==='production') {
+    app.listen(process.env.PORT, () => {
+      console.log(`Production ${env.AUTHOR} , I am running at Port : ${process.env.PORT}`)
+    })
+  } else {
+    app.listen(env.APP_PORT, env.APP_HOST, () => {
+      console.log(`3. Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+    })
+  }
+
   // Cleanup before shutdown server
   exitHook(() => {
     console.log('4. Server is shutting down...')
