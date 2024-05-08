@@ -27,7 +27,7 @@ const START_SERVER = () => {
   app.use(passport.session())
 
   app.use(
-    cors(corsOptions)
+    cors()
   )
   app.use(express.json())
   // login with gg
