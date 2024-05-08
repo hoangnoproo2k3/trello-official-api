@@ -1,9 +1,30 @@
-/* eslint-disable quotes */
-/* eslint-disable no-useless-catch */
-import { StatusCodes } from "http-status-codes"
-import { userServices } from "~/services/userService"
+import { StatusCodes } from 'http-status-codes'
+import { userModel } from '~/models/userModel'
+import { userServices } from '~/services/userService'
+import { env } from '~/config/environment'
 
-// import User from '~/models/userModel'
+const createNewUserGoogle = async (req, res, next) => {
+  try {
+    // const userData = userServices.mapUserDataToModel(req.user)
+    const userData = {
+      name: req.user?._json?.name,
+      email: req.user?._json?.email,
+      avatar: req.user?._json?.picture,
+      ...userData
+    }
+    const emailExists = await userModel.checkEmailExistence(userData.email)
+    if (!emailExists) {
+      // const createdUser =
+      await userModel.createNew(userData)
+      // const getNewUser = await userModel.findOneByIdUser(createdUser.insertedId)
+      // res.status(StatusCodes.CREATED).json({ message: getNewUser, status: StatusCodes.CREATED })
+    }
+    res.redirect(env.CLIENT_URL)
+  } catch (error) {
+    next(error)
+    res.status(500).send('Internal server error')
+  }
+}
 const createNew = async (req, res, next) => {
   try {
     const createBoard = await userServices.createNew(req.body)
@@ -19,5 +40,6 @@ const getDetail = async (req, res, next) => {
 }
 export const userController = {
   createNew,
-  getDetail
+  getDetail,
+  createNewUserGoogle
 }

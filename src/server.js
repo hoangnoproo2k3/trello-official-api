@@ -1,19 +1,37 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
-import express from 'express'
-import cors from 'cors'
 import exitHook from 'async-exit-hook'
-
-import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
+import cors from 'cors'
+import express from 'express'
+const cookieSession = require('cookie-session')
 import { env } from '~/config/environment'
-import { APIs_V1 } from '~/routes/v1'
+import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
+import { APIs_V1 } from '~/routes/v1'
 import { corsOptions } from './config/cors'
+const passportSetup = require('./config/passport')
+import { authRoute } from './routes/auth'
+import passport from 'passport'
+import session from 'express-session'
 
 const START_SERVER = () => {
   const app = express()
-  app.use(cors(corsOptions))
-  // enable req.body json data
+  app.use(
+    session({
+      secret: env.GOOGLE_SECRET,
+      resave: false,
+      saveUninitialized: false
+    })
+  )
+  app.use(passport.initialize())
+  app.use(passport.session())
+
+  app.use(
+    cors(corsOptions)
+  )
   app.use(express.json())
+  // login with gg
+  app.use('/auth', authRoute)
   app.use('/v1', APIs_V1)
   // Middleware handle error
   app.use(errorHandlingMiddleware)

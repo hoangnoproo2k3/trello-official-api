@@ -1,9 +1,15 @@
-/* eslint-disable quotes */
+import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
-import { StatusCodes } from "http-status-codes"
-import ApiError from "~/utils/ApiError"
+const { userModel } = require('~/models/userModel')
 
-const { userModel } = require("~/models/userModel")
+const mapUserDataToModel = (userData) => {
+  return {
+    name: userData?._json?.name,
+    email: userData?._json?.email,
+    avatar: userData?._json?.picture
+  }
+}
 
 /* eslint-disable no-useless-catch */
 const createNew = async (reqBody) => {
@@ -26,5 +32,6 @@ const getDetail = async (userId) => {
 }
 export const userServices = {
   createNew,
-  getDetail
+  getDetail,
+  mapUserDataToModel
 }
