@@ -8,5 +8,6 @@ export const env = {
   AUTHOR:  process.env.AUTHOR,
   GOOGLE_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_SECRET:process.env.GOOGLE_CLIENT_SECRET,
-  CLIENT_URL:process.env.CLIENT_URL
+  CLIENT_URL_DEV:process.env.CLIENT_URL_DEV,
+  CLIENT_URL_PROD:process.env.CLIENT_URL_PROD
 }

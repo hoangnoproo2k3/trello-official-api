@@ -1,10 +1,9 @@
 const router = express.Router()
 import express from 'express'
-import { env } from '~/config/environment'
 import { userController } from '~/controllers/userController'
+import { getClientUrl } from '~/utils/utils'
 const passport = require('passport')
-const CLIENT_URL = env.CLIENT_URL
-
+const CLIENT_URL = getClientUrl()
 router.get('/login/success', (req, res) => {
   if (req.user) {
     res.status(200).json({
