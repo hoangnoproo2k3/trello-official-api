@@ -3,31 +3,39 @@
 import exitHook from 'async-exit-hook'
 import cors from 'cors'
 import express from 'express'
-const cookieSession = require('cookie-session')
+import session from 'express-session'
+import passport from 'passport'
 import { env } from '~/config/environment'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { APIs_V1 } from '~/routes/v1'
 import { corsOptions } from './config/cors'
-const passportSetup = require('./config/passport')
 import { authRoute } from './routes/auth'
-import passport from 'passport'
-import session from 'express-session'
+const cookieSession = require('cookie-session')
+const passportSetup = require('./config/passport')
 
 const START_SERVER = () => {
   const app = express()
   app.use(
     session({
-      secret: env.GOOGLE_SECRET,
+      name: 'trello-official-session',
+      secret: 'trello official',
       resave: false,
-      saveUninitialized: false
+      saveUninitialized: true,
+      // cookie: { secure: true }
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, // Thời gian tồn tại của cookie (1 tuần)
+        httpOnly: true, // Chỉ có máy chủ mới có thể đọc cookie
+        secure: env.BUILD_MODE === 'production', // Chỉ gửi cookie qua HTTPS (khi triển khai)
+        sameSite: 'strict' // Bảo vệ chống lại tấn công CSRF
+      }
     })
   )
   app.use(passport.initialize())
   app.use(passport.session())
 
   app.use(
-    cors()
+    cors(corsOptions)
   )
   app.use(express.json())
   // login with gg

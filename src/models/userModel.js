@@ -4,6 +4,7 @@ import { GET_DB } from '~/config/mongodb'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
+  googleId:Joi.string().trim().strict(),
   name: Joi.string().required().min(3).max(50).trim().strict(),
   email: Joi.string().email().required().min(3).trim().strict(),
   password: Joi.string().trim().strict(),
@@ -12,7 +13,9 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   boards: Joi.array().items(Joi.string()),
   accountStatus: Joi.string().valid('active', 'suspended', 'locked').default('active'),
   creationDate: Joi.date().default(Date.now),
-  lastUpdateDate: Joi.date().default(Date.now)
+  lastUpdateDate: Joi.date().default(Date.now),
+  accessToken:Joi.string().trim().strict(),
+  refreshToken:Joi.string().trim().strict()
   // cards: Joi.array().items(Joi.string()),
   // authToken: Joi.string(),
   // groups: Joi.array().items(Joi.string()),

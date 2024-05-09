@@ -1,6 +1,6 @@
 const router = express.Router()
 import express from 'express'
-import { userController } from '~/controllers/userController'
+// import { userController } from '~/controllers/userController'
 import { getClientUrl } from '~/utils/utils'
 const passport = require('passport')
 const CLIENT_URL = getClientUrl()
@@ -10,7 +10,7 @@ router.get('/login/success', (req, res) => {
       success: true,
       message: 'successfull',
       user: req.user
-      //   cookies: req.cookies
+      // cookies: req.cookies
     })
   }
 })
@@ -22,14 +22,24 @@ router.get('/login/failed', (req, res) => {
   })
 })
 
-router.get('/logout', (req, res) => {
-  req.logout()
-  res.redirect(CLIENT_URL)
+// router.get('/logout', (req, res) => {
+//   req.logout()
+//   res.redirect(CLIENT_URL)
+// })
+router.get('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err) }
+    // Xóa session
+    req.session.destroy()
+    res.redirect(CLIENT_URL)
+  })
 })
-
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }), userController.createNewUserGoogle)
+  passport.authenticate('google', {
+    successRedirect: CLIENT_URL,
+    failureRedirect: '/login/failed'
+  }))
 
 export const authRoute =router
