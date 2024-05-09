@@ -12,5 +12,5 @@ Router.get('/status', (req, res) => {
 /** Board APIs */
 Router.use('/boards', boardRouter)
 /** User APIs */
-Router.use('/user', userRouter)
+Router.use('/users', userRouter)
 export const APIs_V1 =Router

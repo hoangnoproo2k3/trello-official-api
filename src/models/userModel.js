@@ -51,17 +51,33 @@ const createNew =async (data) => {
 }
 const findOneByIdUser = async (id) => {
   try {
-    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
-    })
+    const query = {}
+    if (ObjectId.isValid(id)) {
+      query.$or = [
+        { googleId: id },
+        { _id: new ObjectId(id) }
+      ]
+    } else {
+      query.googleId = id
+    }
+
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne(query)
     return result
   } catch (error) { throw new Error(error) }
 }
 const getDetail = async (id) => {
   try {
-    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
-    })
+    const query = {}
+    if (ObjectId.isValid(id)) {
+      query.$or = [
+        { googleId: id },
+        { _id: new ObjectId(id) }
+      ]
+    } else {
+      query.googleId = id
+    }
+
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne(query)
     return result
   } catch (error) { throw new Error(error) }
 }

@@ -3,6 +3,7 @@
 import exitHook from 'async-exit-hook'
 import cors from 'cors'
 import express from 'express'
+import bodyParser from 'body-parser'
 import session from 'express-session'
 import passport from 'passport'
 import { env } from '~/config/environment'
@@ -16,6 +17,7 @@ const passportSetup = require('./config/passport')
 
 const START_SERVER = () => {
   const app = express()
+  app.use(bodyParser.urlencoded({ extended: false }))
   app.use(
     session({
       name: 'trello-official-session',
