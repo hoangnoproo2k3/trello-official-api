@@ -1,10 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 import exitHook from 'async-exit-hook'
+import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
-import bodyParser from 'body-parser'
-import session from 'express-session'
 import passport from 'passport'
 import { env } from '~/config/environment'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
@@ -12,72 +11,45 @@ import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { APIs_V1 } from '~/routes/v1'
 import { corsOptions } from './config/cors'
 import { authRoute } from './routes/auth'
-const cookieSession = require('cookie-session')
-const passportSetup = require('./config/passport')
 
 const START_SERVER = () => {
   const app = express()
-  app.use(bodyParser.urlencoded({ extended: false }))
-  app.use(
-    session({
-      name: 'trello-official-session',
-      secret: 'trello official',
-      resave: false,
-      saveUninitialized: true,
-      // cookie: { secure: true }
-      cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7, // Thời gian tồn tại của cookie (1 tuần)
-        httpOnly: true, // Chỉ có máy chủ mới có thể đọc cookie
-        secure: env.BUILD_MODE === 'production', // Chỉ gửi cookie qua HTTPS (khi triển khai)
-        sameSite: 'strict' // Bảo vệ chống lại tấn công CSRF
-      }
-    })
-  )
-  app.use(passport.initialize())
-  app.use(passport.session())
-
+  // Bodyparser Middleware
+  app.use(express.json())
+  app.use(bodyParser.urlencoded({ extended: true }))
   app.use(
     cors(corsOptions)
   )
-  app.use(express.json())
+  app.use(passport.initialize())
+  require('./services/jwtStrategy')
+  require('./services/googleStrategy')
+  // app.use(passport.session())
+
   // login with gg
   app.use('/auth', authRoute)
   app.use('/v1', APIs_V1)
   // Middleware handle error
   app.use(errorHandlingMiddleware)
+
   if (env.BUILD_MODE==='production') {
     app.listen(process.env.PORT, () => {
       console.log(`Production ${env.AUTHOR} , I am running at Port : ${process.env.PORT}`)
     })
   } else {
     app.listen(env.APP_PORT, env.APP_HOST, () => {
-      console.log(`3. Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+      console.log(`Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
     })
   }
 
   // Cleanup before shutdown server
   exitHook(() => {
-    console.log('4. Server is shutting down...')
     CLOSE_DB()
-    console.log('5. Disconnected from MongoDB Cloud Atlas')
   })
 }
-// then - catch
-// CONNECT_DB()
-//   .then(() => {
-//     console.log('Connect to MongoDB Cloud Atlas!')
-//   })
-//   .then(() => {START_SERVER()})
-//   .catch(error => {
-//     console.error(error)
-//     process.exit(0)
-//   })
-// async - await (IIFE)
+
 ( async () => {
   try {
-    console.log('1. Connecting to MongoDB Cloud Atlas...')
     await CONNECT_DB()
-    console.log('2. Connected to MongoDB Cloud Atlas!')
     START_SERVER()
   } catch (error) {
     console.error(error)

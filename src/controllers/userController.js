@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { userModel } from '~/models/userModel'
 import { userServices } from '~/services/userService'
-import { getClientUrl } from '~/utils/utils'
+import { getClientUrl } from '~/utils/utils-env'
 const CLIENT_URL = getClientUrl()
 const createNewUserGoogle = async (req, res, next) => {
   try {

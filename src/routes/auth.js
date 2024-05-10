@@ -1,45 +1,30 @@
 const router = express.Router()
 import express from 'express'
-// import { userController } from '~/controllers/userController'
-import { getClientUrl } from '~/utils/utils'
+import { generateJWT } from '~/services/jwtServices'
+import { requireJwtAuth } from '~/services/jwtStrategy'
+import { getClientUrl } from '~/utils/utils-env'
+
 const passport = require('passport')
 const CLIENT_URL = getClientUrl()
-router.get('/login/success', (req, res) => {
-  if (req.user) {
-    res.status(200).json({
-      success: true,
-      message: 'successfull',
-      user: req.user
-      // cookies: req.cookies
-    })
-  }
-})
-
-router.get('/login/failed', (req, res) => {
-  res.status(401).json({
-    success: false,
-    message: 'failure'
-  })
-})
-
-// router.get('/logout', (req, res) => {
-//   req.logout()
-//   res.redirect(CLIENT_URL)
-// })
-router.get('/logout', (req, res, next) => {
-  req.logout(function(err) {
-    if (err) { return next(err) }
-    // Xóa session
-    req.session.destroy()
-    res.redirect(CLIENT_URL)
-  })
-})
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
 
 router.get('/google/callback',
-  passport.authenticate('google', {
-    successRedirect: CLIENT_URL,
-    failureRedirect: '/login/failed'
-  }))
+  passport.authenticate('google',
+    { failureRedirect: '/login-fail', session: false }),
+  (req, res) => {
+    const token = generateJWT(req.user)
+    // Lưu cookie trên thiết bị đăng nhập
+    res.cookie('x-auth-cookie', token)
+    res.redirect(CLIENT_URL)
+  })
+
+
+router.get('/protected', requireJwtAuth, (req, res) => {
+  if (req.user) {
+    res.json({ message: 'Xác thực thành công', user: req.user })
+  } else {
+    res.status(401).json({ message: 'Xác thực thất bại' })
+  }
+})
 
 export const authRoute =router

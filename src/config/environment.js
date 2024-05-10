@@ -11,5 +11,7 @@ export const env = {
   CLIENT_URL_DEV:process.env.CLIENT_URL_DEV,
   CLIENT_URL_PROD:process.env.CLIENT_URL_PROD,
   SERVER_URL_PROD:process.env.SERVER_URL_PROD,
-  SERVER_URL_DEV:process.env.SERVER_URL_DEV
+  SERVER_URL_DEV:process.env.SERVER_URL_DEV,
+  JWT_SECRET_DEV:process.env.JWT_SECRET_DEV,
+  JWT_SECRET_PROD:process.env.JWT_SECRET_PROD
 }

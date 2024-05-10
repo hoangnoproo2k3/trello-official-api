@@ -4,6 +4,7 @@ import { GET_DB } from '~/config/mongodb'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
+  provider:Joi.string().trim().strict(),
   googleId:Joi.string().trim().strict(),
   name: Joi.string().required().min(3).max(50).trim().strict(),
   email: Joi.string().email().required().min(3).trim().strict(),
