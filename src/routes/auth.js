@@ -15,9 +15,15 @@ router.get('/google/callback',
     const token = generateJWT(req.user)
     // Lưu cookie trên thiết bị đăng nhập
     res.cookie('x-auth-cookie', token)
+    res.cookie('gg_id', req.user.id)
     res.redirect(CLIENT_URL)
   })
 
+router.get('/logout', (req, res) => {
+  res.clearCookie('x-auth-cookie')
+  res.clearCookie('gg_id')
+  res.redirect(`${CLIENT_URL}`)
+})
 
 router.get('/protected', requireJwtAuth, (req, res) => {
   if (req.user) {
