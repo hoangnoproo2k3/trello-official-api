@@ -38,8 +38,12 @@ const getDetail = async (req, res, next) => {
     res.status(StatusCodes.OK).json({ message: user, status: StatusCodes.OK })
   } catch (error) { next(error) }
 }
+const getCurrentUser = async (req, res) => {
+  res.send(req.user)
+}
 export const userController = {
   createNew,
   getDetail,
-  createNewUserGoogle
+  createNewUserGoogle,
+  getCurrentUser
 }

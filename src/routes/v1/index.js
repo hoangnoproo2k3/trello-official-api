@@ -13,4 +13,7 @@ Router.get('/status', (req, res) => {
 Router.use('/boards', boardRouter)
 /** User APIs */
 Router.use('/users', userRouter)
+Router.get('/current_user', (req, res) => {
+  res.send(req.user)
+})
 export const APIs_V1 =Router
