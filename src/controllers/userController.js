@@ -1,23 +1,37 @@
-/* eslint-disable quotes */
-/* eslint-disable no-useless-catch */
-import { StatusCodes } from "http-status-codes"
-import { userServices } from "~/services/userService"
+import { StatusCodes } from 'http-status-codes'
+import { userModel } from '~/models/userModel'
 
-// import User from '~/models/userModel'
-const createNew = async (req, res, next) => {
+const createNewUserWithGoogle = async (req, res, next) => {
   try {
-    const createBoard = await userServices.createNew(req.body)
-    res.status(StatusCodes.CREATED).json({ message: createBoard, status: StatusCodes.CREATED })
-  } catch (error) { next(error) }
+    let getNewUser
+    const emailExists = await userModel.checkEmailExistence(req.body.email)
+    if (emailExists) {
+      getNewUser = await userModel.findOneByEmail(req.body.email)
+    } else {
+      const createUser = await userModel.createNewUser(req.body)
+      getNewUser = await userModel.findOneByIdUser(createUser.insertedId)
+    }
+    return res.status(StatusCodes.CREATED).json({ message: getNewUser, status: StatusCodes.CREATED })
+  } catch (error) {
+    next(error)
+  }
 }
-const getDetail = async (req, res, next) => {
+const getListUsers = async (req, res, next) => {
   try {
-    const userId = req.params.id
-    const user = await userServices.getDetail(userId)
-    res.status(StatusCodes.OK).json({ message: user, status: StatusCodes.OK })
-  } catch (error) { next(error) }
+    const { pageNumber, pageSize } = req.query
+    const parsedPageNumber = parseInt(pageNumber)
+    const parsedPageSize = parseInt(pageSize)
+    if (parsedPageNumber <= 0 || parsedPageSize <= 0) {
+      return res.status(400).json({ message: 'pageNumber và pageSize phải là số nguyên dương' })
+    }
+    const getUsers = await userModel.getUsers(parsedPageNumber, parsedPageSize)
+    const getUsersCount = await userModel.getUsersCount()
+    return res.status(StatusCodes.CREATED).json({ message: { getUsers: getUsers, getUsersCount: getUsersCount }, status: StatusCodes.CREATED })
+  } catch (error) {
+    next(error)
+  }
 }
 export const userController = {
-  createNew,
-  getDetail
+  createNewUserWithGoogle,
+  getListUsers
 }
