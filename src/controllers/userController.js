@@ -3,18 +3,29 @@ import { userModel } from '~/models/userModel'
 
 const createNewUserWithGoogle = async (req, res, next) => {
   try {
-    let getNewUser
-    const emailExists = await userModel.checkEmailExistence(req.body.email)
-    if (emailExists) {
-      getNewUser = await userModel.findOneByEmail(req.body.email)
-    } else {
-      const createUser = await userModel.createNewUser(req.body)
-      getNewUser = await userModel.findOneByIdUser(createUser.insertedId)
+    const { email, googleId, avatar, ...otherUserData } = req.body
+    if (!email) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Email is required' })
     }
-    return res.status(StatusCodes.CREATED).json({ message: getNewUser, status: StatusCodes.CREATED })
+    let newUser
+    const emailExists = await userModel.checkEmailExistence(email)
+    if (emailExists) {
+      newUser = await userModel.findOneByEmail(email)
+    } else {
+      const createUser = await userModel.createNewUser({ email, googleId, avatar, ...otherUserData })
+      newUser = await userModel.findOneByIdUser(createUser.insertedId)
+    }
+    return res.status(StatusCodes.CREATED).json({ message: newUser, status: StatusCodes.CREATED })
   } catch (error) {
     next(error)
   }
+}
+const getDetailUserWithEmail = async (req, res, next) => {
+  try {
+    const email = req.body.email
+    const user = await userModel.findOneByEmail(email)
+    res.status(StatusCodes.OK).json({ message: user, status: StatusCodes.OK })
+  } catch (error) { next(error) }
 }
 const getListUsers = async (req, res, next) => {
   try {
@@ -33,5 +44,6 @@ const getListUsers = async (req, res, next) => {
 }
 export const userController = {
   createNewUserWithGoogle,
+  getDetailUserWithEmail,
   getListUsers
 }
