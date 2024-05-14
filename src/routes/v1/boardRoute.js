@@ -3,7 +3,7 @@ import { boardController } from '~/controllers/boardController'
 
 const Router = express.Router()
 Router.route('/')
-  .get(boardController.getPaginatedDocuments)
   .post(boardController.createNewBoardWithUser)
-
+Router.route('/list-board')
+  .post(boardController.getPaginatedDocuments)
 export const boardRouter =Router

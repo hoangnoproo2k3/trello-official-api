@@ -36,10 +36,10 @@ const createNewUser =async (data) => {
     return createdUser
   } catch (error) { throw new Error(error) }
 }
-const updateUserBoards = async (userId, newBoards) => {
+const updateUserBoards = async (userId, newBoardId) => {
   try {
     const filter = { _id: new ObjectId(userId) }
-    const updateDoc = { $set: { boards: newBoards } }
+    const updateDoc = { $push: { boards: newBoardId } }
     const result = await GET_DB().collection(USER_COLLECTION_NAME).updateOne(filter, updateDoc)
     if (result.matchedCount === 0) {
       throw new Error('User not found')
@@ -72,7 +72,7 @@ const findOneByEmail = async (email) => {
   } catch (error) { throw new Error(error) }
 }
 const getUsers = async (page, pageSize) => {
-  let skip = 1
+  let skip = 0
   let limit = 10
   if (page && pageSize) {
     skip = (page - 1) * pageSize

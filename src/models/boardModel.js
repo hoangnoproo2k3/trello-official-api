@@ -43,7 +43,7 @@ const findOneByIdBoard = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 const getPaginatedDocuments = async (page, pageSize, ownerIds) => {
-  let skip = 1
+  let skip = 0
   let limit = 10
   if (page && pageSize) {
     skip = (page - 1) * pageSize

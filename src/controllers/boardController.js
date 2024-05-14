@@ -49,7 +49,7 @@ const getPaginatedDocuments = async (req, res, next) => {
     }
     const getBoards = await boardModel.getPaginatedDocuments(parsedPageNumber, parsedPageSize, ownerIds)
     const getBoardsCount = await boardModel.getBoardsCount(ownerIds)
-    return res.status(StatusCodes.CREATED).json({ message: { getUsers: getBoards, getUsersCount: getBoardsCount }, status: StatusCodes.CREATED })
+    return res.status(StatusCodes.OK).json({ message: { getUsers: getBoards, getUsersCount: getBoardsCount }, status: StatusCodes.OK })
   } catch (error) {
     next(error)
   }
