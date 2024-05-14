@@ -8,8 +8,9 @@ const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).trim().strict(),
   slug: Joi.string().trim().strict(),
-  description: Joi.string().required().min(3).max(300).trim().strict(),
+  description: Joi.string().min(3).max(300).trim().strict(),
   type:Joi.string().valid('private', 'public').default('public'),
+  bgColor: Joi.string().trim().strict(),
   ownerIds:Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
