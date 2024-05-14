@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const USER_COLLECTION_NAME = 'users'
 const USER_COLLECTION_SCHEMA = Joi.object({
@@ -10,7 +11,9 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   password: Joi.string().trim().strict(),
   avatar: Joi.string().uri().trim().strict(),
   permissions: Joi.array().items(Joi.string().valid('admin', 'member', 'guest')).default(['member']),
-  boards: Joi.array().items(Joi.string()),
+  boards: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
   accountStatus: Joi.string().valid('active', 'suspended', 'locked').default('active'),
   creationDate: Joi.date().default(Date.now),
   lastUpdateDate: Joi.date().default(Date.now),
@@ -32,6 +35,19 @@ const createNewUser =async (data) => {
     const createdUser = await GET_DB().collection(USER_COLLECTION_NAME).insertOne(validate)
     return createdUser
   } catch (error) { throw new Error(error) }
+}
+const updateUserBoards = async (userId, newBoards) => {
+  try {
+    const filter = { _id: new ObjectId(userId) }
+    const updateDoc = { $set: { boards: newBoards } }
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('User not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating user boards: ' + error.message)
+  }
 }
 const findOneByIdUser = async (id) => {
   try {
@@ -81,6 +97,7 @@ export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
   createNewUser,
+  updateUserBoards,
   checkEmailExistence,
   findOneByIdUser,
   findOneByEmail,
