@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { boardModel } from '~/models/boardModel'
 import { userModel } from '~/models/userModel'
+import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
 const createNewBoard = async (req, res, next) => {
   try {
@@ -32,8 +33,20 @@ const createNewBoardWithUser = async (req, res, next) => {
     const createdBoard = await boardModel.createNewBoard(newBoard)
     const boardId = createdBoard.insertedId
     const getNewBoard = await boardModel.findOneByIdBoard(boardId)
-    await userModel.updateUserBoards(req.body.ownerIds, boardId)
+    await userModel.updateUserBoards(req.body.ownerId, boardId)
     res.status(201).json({ message: getNewBoard, boardId })
+  } catch (error) {
+    next(error)
+  }
+}
+const getDetailBoardWithId = async (req, res, next) => {
+  try {
+    const boardId = req.params.boardId
+    const getBoards = await boardModel.findOneByIdBoard(boardId)
+    if (!getBoards) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    }
+    return res.status(StatusCodes.OK).json({ message: { getBoards: getBoards }, status: StatusCodes.OK })
   } catch (error) {
     next(error)
   }
@@ -41,22 +54,33 @@ const createNewBoardWithUser = async (req, res, next) => {
 const getPaginatedDocuments = async (req, res, next) => {
   try {
     const { pageNumber, pageSize } = req.query
-    const ownerIds= req.body.ownerIds
+    const ownerId= req.body.ownerId
     const parsedPageNumber = parseInt(pageNumber)
     const parsedPageSize = parseInt(pageSize)
     if (parsedPageNumber <= 0 || parsedPageSize <= 0) {
       return res.status(400).json({ message: 'pageNumber và pageSize phải là số nguyên dương' })
     }
-    const getBoards = await boardModel.getPaginatedDocuments(parsedPageNumber, parsedPageSize, ownerIds)
-    const getBoardsCount = await boardModel.getBoardsCount(ownerIds)
-    return res.status(StatusCodes.OK).json({ message: { getUsers: getBoards, getUsersCount: getBoardsCount }, status: StatusCodes.OK })
+    const getBoards = await boardModel.getPaginatedDocuments(parsedPageNumber, parsedPageSize, ownerId)
+    const getBoardsCount = await boardModel.getBoardsCount(ownerId)
+    return res.status(StatusCodes.OK).json({ message: { getBoards: getBoards, getBoardsCount: getBoardsCount }, status: StatusCodes.OK })
   } catch (error) {
     next(error)
   }
 }
-
+const getResultSearchTitle = async (req, res, next) => {
+  try {
+    const searchTerm = req.query.q
+    const ownerId= req.body.ownerId
+    const listBoards = await boardModel.getSearchTitleBoards(searchTerm, ownerId)
+    return res.status(StatusCodes.OK).json({ getBoards: listBoards, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 export const boardController = {
   createNewBoard,
   createNewBoardWithUser,
-  getPaginatedDocuments
+  getDetailBoardWithId,
+  getPaginatedDocuments,
+  getResultSearchTitle
 }

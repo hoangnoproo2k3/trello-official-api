@@ -16,9 +16,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   ).default([]),
   accountStatus: Joi.string().valid('active', 'suspended', 'locked').default('active'),
   creationDate: Joi.date().default(Date.now),
-  lastUpdateDate: Joi.date().default(Date.now),
-  accessToken:Joi.string().trim().strict(),
-  refreshToken:Joi.string().trim().strict()
+  lastUpdateDate: Joi.date().default(Date.now)
 })
 const checkEmailExistence = async (email) => {
   try {

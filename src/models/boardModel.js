@@ -11,7 +11,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   description: Joi.string().min(3).max(300).trim().strict(),
   type:Joi.string().valid('private', 'public').default('public'),
   bgColor: Joi.string().trim().strict(),
-  ownerIds:Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  ownerId:Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
@@ -43,7 +43,7 @@ const findOneByIdBoard = async (id) => {
     return result
   } catch (error) { throw new Error(error) }
 }
-const getPaginatedDocuments = async (page, pageSize, ownerIds) => {
+const getPaginatedDocuments = async (page, pageSize, ownerId) => {
   let skip = 0
   let limit = 10
   if (page && pageSize) {
@@ -52,24 +52,32 @@ const getPaginatedDocuments = async (page, pageSize, ownerIds) => {
   }
   try {
     const documents = await GET_DB().collection(BOARD_COLLECTION_NAME)
-      .find({ ownerIds })
+      .find({ ownerId })
       .skip(skip)
       .limit(limit)
       .toArray()
     return documents
   } catch (error) { throw new Error(error) }
 }
-const getBoardsCount = async (ownerIds) => {
+const getBoardsCount = async (ownerId) => {
   try {
     const count = await GET_DB().collection(BOARD_COLLECTION_NAME).countDocuments({
-      ownerIds
+      ownerId
     })
     return count
   } catch (error) {
     throw new Error('Error getting boards count: ' + error.message)
   }
 }
-
+const getSearchTitleBoards = async (searchTitle, ownerId) => {
+  const filter = {
+    title: { $regex: searchTitle, $options: 'i' },
+    ownerId:ownerId
+  }
+  const projection = { _id: 1, title: 1, slug: 1 }
+  const boards = await GET_DB().collection(BOARD_COLLECTION_NAME).find(filter).project(projection).toArray()
+  return boards
+}
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -77,5 +85,6 @@ export const boardModel = {
   checkNameBoardExistence,
   findOneByIdBoard,
   getPaginatedDocuments,
+  getSearchTitleBoards,
   getBoardsCount
 }
