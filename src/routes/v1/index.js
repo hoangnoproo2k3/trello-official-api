@@ -2,6 +2,7 @@ import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { boardRouter } from './boardRoute'
 import { userRouter } from './userRoute'
+import { columnRouter } from './columnRoute'
 
 const Router = express.Router()
 
@@ -9,8 +10,11 @@ const Router = express.Router()
 Router.get('/status', (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'APIs V1 are realy to use.', status: StatusCodes.OK })
 })
-/** Board APIs */
-Router.use('/boards', boardRouter)
+
 /** User APIs */
 Router.use('/users', userRouter)
+/** Board APIs */
+Router.use('/boards', boardRouter)
+/** Column APIs */
+Router.use('/columns', columnRouter)
 export const APIs_V1 =Router

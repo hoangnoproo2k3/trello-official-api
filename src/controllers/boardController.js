@@ -22,7 +22,7 @@ const createNewBoard = async (req, res, next) => {
 }
 const createNewBoardWithUser = async (req, res, next) => {
   try {
-    const titleExists = await boardModel.checkNameBoardExistence(req.body.title)
+    const titleExists = await boardModel.checkNameBoardExistence(req.body.title, req.body.ownerId)
     const newBoard = {
       ...req.body,
       slug: slugify(req.body.title)
@@ -51,7 +51,7 @@ const getDetailBoardWithId = async (req, res, next) => {
     next(error)
   }
 }
-const getPaginatedDocuments = async (req, res, next) => {
+const getPaginatedBoards = async (req, res, next) => {
   try {
     const { pageNumber, pageSize } = req.query
     const ownerId= req.body.ownerId
@@ -81,6 +81,6 @@ export const boardController = {
   createNewBoard,
   createNewBoardWithUser,
   getDetailBoardWithId,
-  getPaginatedDocuments,
+  getPaginatedBoards,
   getResultSearchTitle
 }

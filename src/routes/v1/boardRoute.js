@@ -9,5 +9,5 @@ Router.route('/:boardId')
 Router.route('/search')
   .post(boardController.getResultSearchTitle)
 Router.route('/list-board')
-  .post(boardController.getPaginatedDocuments)
+  .post(boardController.getPaginatedBoards)
 export const boardRouter =Router

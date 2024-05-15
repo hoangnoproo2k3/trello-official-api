@@ -20,9 +20,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   ).default([])
 })
 
-const checkNameBoardExistence = async (title) => {
+const checkNameBoardExistence = async (title, ownerId) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ title })
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ title, ownerId })
     return !!result
   } catch (error) {
     throw new Error(error)
@@ -42,6 +42,19 @@ const findOneByIdBoard = async (id) => {
     })
     return result
   } catch (error) { throw new Error(error) }
+}
+const updateBoardWithColumn = async (boardID, newColumnId) => {
+  try {
+    const filter = { _id: new ObjectId(boardID) }
+    const updateDoc = { $push: { columnOrderIds: newColumnId } }
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
 }
 const getPaginatedDocuments = async (page, pageSize, ownerId) => {
   let skip = 0
@@ -84,6 +97,7 @@ export const boardModel = {
   createNewBoard,
   checkNameBoardExistence,
   findOneByIdBoard,
+  updateBoardWithColumn,
   getPaginatedDocuments,
   getSearchTitleBoards,
   getBoardsCount
