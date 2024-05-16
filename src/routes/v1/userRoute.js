@@ -7,4 +7,6 @@ Router.route('/')
   .post(userController.createNewUserWithGoogle)
 Router.route('/email')
   .post(userController.getDetailUserWithEmail)
+Router.route('/search')
+  .post(userController.getResultSearchUser)
 export const userRouter =Router

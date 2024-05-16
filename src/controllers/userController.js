@@ -42,8 +42,18 @@ const getListUsers = async (req, res, next) => {
     next(error)
   }
 }
+const getResultSearchUser = async (req, res, next) => {
+  try {
+    const searchTerm = req.query.q
+    const listBoards = await userModel.getSearchUser(searchTerm)
+    return res.status(StatusCodes.OK).json({ getUsers: listBoards, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 export const userController = {
   createNewUserWithGoogle,
   getDetailUserWithEmail,
-  getListUsers
+  getListUsers,
+  getResultSearchUser
 }

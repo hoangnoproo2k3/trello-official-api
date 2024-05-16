@@ -91,6 +91,14 @@ const getUsersCount = async () => {
     throw new Error('Error getting users count: ' + error.message)
   }
 }
+const getSearchUser = async (search) => {
+  const filter = {
+    email: { $regex: search, $options: 'i' }
+  }
+  const projection = { _id: 1, name: 1, email: 1, avatar: 1 }
+  const users = await GET_DB().collection(USER_COLLECTION_NAME).find(filter).project(projection).toArray()
+  return users
+}
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -100,5 +108,6 @@ export const userModel = {
   findOneByIdUser,
   findOneByEmail,
   getUsers,
+  getSearchUser,
   getUsersCount
 }
