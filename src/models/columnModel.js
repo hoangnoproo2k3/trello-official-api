@@ -37,9 +37,23 @@ const findOneByIdColumn = async (id) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const updateDestroyColumn = async (columnId, boardId, _destroy) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(columnId), boardId },
+      { $set: { _destroy: _destroy } }
+    )
+    if (result.matchedCount === 0) {
+      throw new Error('Column not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating column columns: ' + error.message)
+  }
+}
 const getColumnWithBoards = async (boardId) => {
   try {
-    const boards = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId }).toArray()
+    const boards = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
     return boards
   } catch (error) {
     throw new Error('Error getting users: ' + error.message)
@@ -51,5 +65,6 @@ export const columnModel = {
   checkNameBoardExistence,
   createNewColumn,
   findOneByIdColumn,
+  updateDestroyColumn,
   getColumnWithBoards
 }

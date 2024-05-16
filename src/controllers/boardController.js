@@ -39,6 +39,15 @@ const createNewBoardWithUser = async (req, res, next) => {
     next(error)
   }
 }
+const updateColumnOrderIdsBoard = async( req, res, next) => {
+  try {
+    await boardModel.updateColumnOrderIdsBoard(req.body.boardId, req.body.columnOrderIds)
+    const getBoard = await boardModel.findOneByIdBoard(req.body.boardId)
+    res.status(StatusCodes.OK).json({ message: getBoard, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 const getDetailBoardWithId = async (req, res, next) => {
   try {
     const boardId = req.params.boardId
@@ -80,6 +89,7 @@ const getResultSearchTitle = async (req, res, next) => {
 export const boardController = {
   createNewBoard,
   createNewBoardWithUser,
+  updateColumnOrderIdsBoard,
   getDetailBoardWithId,
   getPaginatedBoards,
   getResultSearchTitle

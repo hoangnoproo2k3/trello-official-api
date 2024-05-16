@@ -4,6 +4,7 @@ import { boardController } from '~/controllers/boardController'
 const Router = express.Router()
 Router.route('/')
   .post(boardController.createNewBoardWithUser)
+  .patch(boardController.updateColumnOrderIdsBoard)
 Router.route('/:boardId')
   .get(boardController.getDetailBoardWithId)
 Router.route('/search')

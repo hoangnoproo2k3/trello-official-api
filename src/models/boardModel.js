@@ -56,6 +56,20 @@ const updateBoardWithColumn = async (boardID, newColumnId) => {
     throw new Error('Error updating board columns: ' + error.message)
   }
 }
+const updateColumnOrderIdsBoard = async (boardId, newColumnOrderIds) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(boardId) },
+      { $set: { columnOrderIds: newColumnOrderIds } }
+    )
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
+}
 const getPaginatedDocuments = async (page, pageSize, ownerId) => {
   let skip = 0
   let limit = 10
@@ -98,6 +112,7 @@ export const boardModel = {
   checkNameBoardExistence,
   findOneByIdBoard,
   updateBoardWithColumn,
+  updateColumnOrderIdsBoard,
   getPaginatedDocuments,
   getSearchTitleBoards,
   getBoardsCount
