@@ -4,6 +4,8 @@ import { cardController } from '~/controllers/cardController'
 const Router = express.Router()
 Router.route('/')
   .post(cardController.createNewColumnWithBoard)
+Router.route('/:cardId')
+  .get(cardController.getDetailCardWithId)
 Router.route('/list-cards')
   .post(cardController.getCards)
 

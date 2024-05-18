@@ -1,3 +1,5 @@
+import ApiError from '~/utils/ApiError'
+
 const { StatusCodes } = require('http-status-codes')
 const { cardModel } = require('~/models/cardModel')
 const { columnModel } = require('~/models/columnModel')
@@ -17,6 +19,18 @@ const createNewColumnWithBoard = async (req, res, next) => {
     next(error)
   }
 }
+const getDetailCardWithId = async (req, res, next) => {
+  try {
+    const cardId = req.params.cardId
+    const getCards = await cardModel.findOneByIdCard(cardId)
+    if (!getCards) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found!')
+    }
+    return res.status(StatusCodes.OK).json({ getCards: getCards, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 const getCards = async (req, res, next) => {
   try {
     const getCards = await cardModel.getCardsWithColumn(req.body.columnId, req.body.boardId)
@@ -28,5 +42,6 @@ const getCards = async (req, res, next) => {
 }
 export const cardController = {
   createNewColumnWithBoard,
-  getCards
+  getCards,
+  getDetailCardWithId
 }
