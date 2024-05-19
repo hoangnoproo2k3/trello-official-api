@@ -7,5 +7,6 @@ Router.route('/')
   .patch(columnController.updateDestroyColumn)
 Router.route('/list-columns')
   .post(columnController.getColumns)
-
+Router.route('/list-columns-cards')
+  .post(columnController.getColumnsWithCards)
 export const columnRouter =Router

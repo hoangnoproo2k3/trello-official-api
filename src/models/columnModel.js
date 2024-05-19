@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { cardModel } from './cardModel'
 
 const COLUMN_COLLECTION_NAME = 'columns'
 const COLUMN_COLLECTION_SCHEMA = Joi.object({
@@ -66,10 +67,23 @@ const updateColumnWithCard = async (columnID, newCardId) => {
 }
 const getColumnWithBoards = async (boardId) => {
   try {
-    const boards = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
-    return boards
+    const columns = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
+    return columns
   } catch (error) {
     throw new Error('Error getting users: ' + error.message)
+  }
+}
+const getColumnsWithCards = async (boardId) => {
+  try {
+    const columns = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
+    for (const column of columns) {
+      const columnId = column._id.toString();
+      const cards = await cardModel.getCardsWithColumn(columnId, boardId)
+      column.cards = cards;
+    }
+    return columns
+  } catch (error) {
+    throw new Error('Error getting columns: ' + error.message)
   }
 }
 export const columnModel = {
@@ -80,5 +94,6 @@ export const columnModel = {
   findOneByIdColumn,
   updateDestroyColumn,
   updateColumnWithCard,
+  getColumnsWithCards,
   getColumnWithBoards
 }

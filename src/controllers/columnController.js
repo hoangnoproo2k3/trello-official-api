@@ -35,8 +35,18 @@ const getColumns = async (req, res, next) => {
     next(error)
   }
 }
+const getColumnsWithCards = async (req, res, next) => {
+  try {
+    const getColumns = await columnModel.getColumnsWithCards(req.body.boardId)
+    return res.status(StatusCodes.OK).json({ getColumns: getColumns, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
 export const columnController = {
   createNewColumnWithBoard,
   updateDestroyColumn,
-  getColumns
+  getColumns,
+  getColumnsWithCards
 }

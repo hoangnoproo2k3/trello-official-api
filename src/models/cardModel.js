@@ -52,7 +52,7 @@ const findOneByIdCard = async (id) => {
 }
 const getCardsWithColumn = async (columnId, boardId) => {
   try {
-    const cards = await GET_DB().collection(CARD_COLLECTION_NAME).find({ columnId, boardId }).toArray()
+    const cards = await GET_DB().collection(CARD_COLLECTION_NAME).find({ columnId, boardId, _destroy: false }).toArray()
     return cards
   } catch (error) {
     throw new Error('Error getting users: ' + error.message)
