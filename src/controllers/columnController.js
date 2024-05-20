@@ -26,6 +26,15 @@ const updateDestroyColumn = async( req, res, next) => {
     next(error)
   }
 }
+const updateCardOrderIdsColumn = async( req, res, next) => {
+  try {
+    await columnModel.updateCardsOrderIdsColumn(req.body.columnId, req.body.cardOrderIds)
+    const getColumn = await columnModel.findOneByIdColumn(req.body.columnId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 const getColumns = async (req, res, next) => {
   try {
     const getColumns = await columnModel.getColumnWithBoards(req.body.boardId)
@@ -47,6 +56,7 @@ const getColumnsWithCards = async (req, res, next) => {
 export const columnController = {
   createNewColumnWithBoard,
   updateDestroyColumn,
+  updateCardOrderIdsColumn,
   getColumns,
   getColumnsWithCards
 }

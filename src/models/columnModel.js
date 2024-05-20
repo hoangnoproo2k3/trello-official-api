@@ -65,6 +65,20 @@ const updateColumnWithCard = async (columnID, newCardId) => {
     throw new Error('Error updating board columns: ' + error.message)
   }
 }
+const updateCardsOrderIdsColumn = async (columnId, newCardsOrderIds) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(columnId) },
+      { $set: { cardOrderIds: newCardsOrderIds } }
+    )
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
+}
 const getColumnWithBoards = async (boardId) => {
   try {
     const columns = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
@@ -77,9 +91,9 @@ const getColumnsWithCards = async (boardId) => {
   try {
     const columns = await GET_DB().collection(COLUMN_COLLECTION_NAME).find({ boardId, _destroy:false }).toArray()
     for (const column of columns) {
-      const columnId = column._id.toString();
+      const columnId = column._id.toString()
       const cards = await cardModel.getCardsWithColumn(columnId, boardId)
-      column.cards = cards;
+      column.cards = cards
     }
     return columns
   } catch (error) {
@@ -94,6 +108,7 @@ export const columnModel = {
   findOneByIdColumn,
   updateDestroyColumn,
   updateColumnWithCard,
+  updateCardsOrderIdsColumn,
   getColumnsWithCards,
   getColumnWithBoards
 }
