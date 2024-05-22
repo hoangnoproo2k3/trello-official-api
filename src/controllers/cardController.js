@@ -40,8 +40,19 @@ const getCards = async (req, res, next) => {
     next(error)
   }
 }
+const updateCardWithDndKit =async (req, res, next) => {
+  try {
+    await cardModel.updateCardsDndKit(req.body.cardId, req.body.columnId)
+    const getColumn = await cardModel.findOneByIdCard(req.body.cardId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
 export const cardController = {
   createNewColumnWithBoard,
   getCards,
-  getDetailCardWithId
+  getDetailCardWithId,
+  updateCardWithDndKit
 }

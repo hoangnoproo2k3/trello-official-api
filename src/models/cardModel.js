@@ -58,11 +58,26 @@ const getCardsWithColumn = async (columnId, boardId) => {
     throw new Error('Error getting users: ' + error.message)
   }
 }
+const updateCardsDndKit = async (cardId, columnId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(cardId) },
+      { $set: { columnId } }
+    )
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
+}
 export const cardModel = {
   CARD_COLLECTION_SCHEMA,
   CARD_COLLECTION_NAME,
   checkNameCardExistence,
   createNewCard,
   findOneByIdCard,
-  getCardsWithColumn
+  getCardsWithColumn,
+  updateCardsDndKit
 }

@@ -93,7 +93,12 @@ const getColumnsWithCards = async (boardId) => {
     for (const column of columns) {
       const columnId = column._id.toString()
       const cards = await cardModel.getCardsWithColumn(columnId, boardId)
-      column.cards = cards
+      const sortedCards = cards.sort((a, b) => {
+        const aIndex = column.cardOrderIds.indexOf(a._id.toString())
+        const bIndex = column.cardOrderIds.indexOf(b._id.toString())
+        return aIndex - bIndex
+      })
+      column.cards = sortedCards
     }
     return columns
   } catch (error) {
