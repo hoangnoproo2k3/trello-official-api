@@ -1,9 +1,10 @@
 const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
 const { StatusCodes } = require('http-status-codes')
+const { env } = require('./environment')
 
 const setupUpload = (app) => {
-  const storage = new Storage({ keyFilename: 'key.json' })
+  const storage = new Storage({ keyFilename: env.GOOGLE_APPLICATION_CREDENTIALS })
   const bucket = storage.bucket('hoangnv')
   const multerUpload = multer({ storage: multer.memoryStorage() })
 
