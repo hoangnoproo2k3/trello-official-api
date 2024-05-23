@@ -1,39 +1,39 @@
 /* eslint-disable no-console */
 import exitHook from 'async-exit-hook'
+import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
-
-import bodyParser from 'body-parser'
 import { env } from '~/config/environment'
 import { CLOSE_DB, CONNECT_DB } from '~/config/mongodb'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { APIs_V1 } from '~/routes/v1'
 import { corsOptions } from './config/cors'
+import { setupUpload } from './config/upload'
 
 const START_SERVER = () => {
   const app = express()
+
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(cors(corsOptions))
-  // enable req.body json data
   app.use(express.json())
+
   app.use('/v1', APIs_V1)
-  // Middleware handle error
+  setupUpload(app)
   app.use(errorHandlingMiddleware)
+
   if (env.BUILD_MODE==='production') {
     app.listen(process.env.PORT, () => {
       console.log(`Production ${env.AUTHOR} , I am running at Port : ${process.env.PORT}`)
     })
   } else {
     app.listen(env.APP_PORT, env.APP_HOST, () => {
-      console.log(`3. Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+      console.log(`Hello ${env.AUTHOR} , I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
     })
   }
 
   // Cleanup before shutdown server
   exitHook(() => {
-    console.log('4. Server is shutting down...')
     CLOSE_DB()
-    console.log('5. Disconnected from MongoDB Cloud Atlas')
   })
 }
 // then - catch
@@ -49,12 +49,9 @@ const START_SERVER = () => {
 // async - await (IIFE)
 ( async () => {
   try {
-    console.log('1. Connecting to MongoDB Cloud Atlas...')
     await CONNECT_DB()
-    console.log('2. Connected to MongoDB Cloud Atlas!')
     START_SERVER()
   } catch (error) {
-    console.error(error)
     process.exit(0)
   }
 })()
