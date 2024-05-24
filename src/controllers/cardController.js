@@ -4,7 +4,7 @@ const { StatusCodes } = require('http-status-codes')
 const { cardModel } = require('~/models/cardModel')
 const { columnModel } = require('~/models/columnModel')
 
-const createNewColumnWithBoard = async (req, res, next) => {
+const createNewCardWithBoard = async (req, res, next) => {
   try {
     const titleExists = await cardModel.checkNameCardExistence(req.body.title, req.body.columnId)
     if (titleExists) {
@@ -40,6 +40,18 @@ const getCards = async (req, res, next) => {
     next(error)
   }
 }
+const updateCard = async (req, res, next) => {
+  try {
+    const { cardId } = req.params
+    await cardModel.updateCard(cardId, req.body)
+    const getCardUpdate = await cardModel.findOneByIdCard(cardId)
+    res.status(StatusCodes.OK).json({ message: getCardUpdate, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
+
 const updateCardWithDndKit =async (req, res, next) => {
   try {
     await cardModel.updateCardsDndKit(req.body.cardId, req.body.columnId)
@@ -51,8 +63,9 @@ const updateCardWithDndKit =async (req, res, next) => {
   }
 }
 export const cardController = {
-  createNewColumnWithBoard,
+  createNewCardWithBoard,
   getCards,
+  updateCard,
   getDetailCardWithId,
   updateCardWithDndKit
 }
