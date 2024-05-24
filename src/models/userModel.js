@@ -37,7 +37,7 @@ const createNewUser =async (data) => {
 const updateUserBoards = async (userId, newBoardId) => {
   try {
     const filter = { _id: new ObjectId(userId) }
-    const updateDoc = { $push: { boards: newBoardId } }
+    const updateDoc = { $addToSet: { boards: newBoardId } }
     const result = await GET_DB().collection(USER_COLLECTION_NAME).updateOne(filter, updateDoc)
     if (result.matchedCount === 0) {
       throw new Error('User not found')

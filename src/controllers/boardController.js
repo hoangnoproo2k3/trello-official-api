@@ -100,10 +100,22 @@ const getResultSearchTitle = async (req, res, next) => {
     next(error)
   }
 }
+const joinBoardWithMember = async( req, res, next) => {
+  try {
+    await boardModel.updateBoardWithUserMembers(req.body.boardId, req.body.ownerId)
+    await userModel.updateUserBoards( req.body.ownerId, req.body.boardId)
+    const getBoard = await boardModel.findOneByIdBoard(req.body.boardId)
+    const getUser = await userModel.findOneByIdUser(req.body.ownerId)
+    res.status(StatusCodes.OK).json({ getBoard, getUser, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 export const boardController = {
   createNewBoard,
   createNewBoardWithUser,
   updateColumnOrderIdsBoard,
+  joinBoardWithMember,
   getDetailBoardWithId,
   getPaginatedBoards,
   getLatestDocuments,

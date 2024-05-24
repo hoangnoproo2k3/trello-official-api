@@ -57,6 +57,19 @@ const updateBoardWithColumn = async (boardID, newColumnId) => {
     throw new Error('Error updating board columns: ' + error.message)
   }
 }
+const updateBoardWithUserMembers= async (boardID, newMember) => {
+  try {
+    const filter = { _id: new ObjectId(boardID) }
+    const updateDoc = { $addToSet: { memberIds: newMember } }
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
+}
 const updateColumnOrderIdsBoard = async (boardId, newColumnOrderIds) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).updateOne(
@@ -79,8 +92,14 @@ const getPaginatedDocuments = async (page, pageSize, ownerId) => {
     limit = pageSize
   }
   try {
+    const query = {
+      $or: [
+        { ownerId },
+        { memberIds: ownerId }
+      ]
+    }
     const documents = await GET_DB().collection(BOARD_COLLECTION_NAME)
-      .find({ ownerId })
+      .find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -93,7 +112,10 @@ const getLatestDocuments = async (currentPage, userId) => {
   try {
     let query = { type: 'public' }
     if (userId) {
-      query.ownerId = { $ne: userId }
+      query.$and = [
+        { ownerId: { $ne: userId } },
+        { memberIds: { $nin: [userId] } }
+      ]
     }
     const skip = (currentPage - 1) * limit
     const documents = await GET_DB().collection(BOARD_COLLECTION_NAME)
@@ -133,6 +155,7 @@ export const boardModel = {
   checkNameBoardExistence,
   findOneByIdBoard,
   updateBoardWithColumn,
+  updateBoardWithUserMembers,
   updateColumnOrderIdsBoard,
   getPaginatedDocuments,
   getLatestDocuments,

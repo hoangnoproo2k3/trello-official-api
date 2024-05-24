@@ -13,4 +13,6 @@ Router.route('/list-board')
   .post(boardController.getPaginatedBoards)
 Router.route('/list-board-public')
   .post(boardController.getLatestDocuments)
+Router.route('/join-board')
+  .post(boardController.joinBoardWithMember)
 export const boardRouter =Router
