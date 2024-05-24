@@ -17,7 +17,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   ).default([]),
   columnOrderIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
-  ).default([])
+  ).default([]),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now)
 })
 
 const checkNameBoardExistence = async (title, ownerId) => {
@@ -80,11 +81,31 @@ const getPaginatedDocuments = async (page, pageSize, ownerId) => {
   try {
     const documents = await GET_DB().collection(BOARD_COLLECTION_NAME)
       .find({ ownerId })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .toArray()
     return documents
   } catch (error) { throw new Error(error) }
+}
+const getLatestDocuments = async (currentPage, userId) => {
+  const limit = 8
+  try {
+    let query = { type: 'public' }
+    if (userId) {
+      query.ownerId = { $ne: userId }
+    }
+    const skip = (currentPage - 1) * limit
+    const documents = await GET_DB().collection(BOARD_COLLECTION_NAME)
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    return documents
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 const getBoardsCount = async (ownerId) => {
   try {
@@ -114,6 +135,7 @@ export const boardModel = {
   updateBoardWithColumn,
   updateColumnOrderIdsBoard,
   getPaginatedDocuments,
+  getLatestDocuments,
   getSearchTitleBoards,
   getBoardsCount
 }

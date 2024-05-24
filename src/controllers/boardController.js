@@ -76,6 +76,20 @@ const getPaginatedBoards = async (req, res, next) => {
     next(error)
   }
 }
+const getLatestDocuments = async (req, res, next) => {
+  try {
+    const { currentPage } = req.query
+    const ownerId= req.body.ownerId
+    const parsedPageNumber = parseInt(currentPage)
+    if (parsedPageNumber <= 0) {
+      return res.status(400).json({ message: 'currentPage phải là số nguyên dương' })
+    }
+    const getBoards = await boardModel.getLatestDocuments(parsedPageNumber, ownerId)
+    return res.status(StatusCodes.OK).json({ message: { getBoards: getBoards }, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 const getResultSearchTitle = async (req, res, next) => {
   try {
     const searchTerm = req.query.q
@@ -92,5 +106,6 @@ export const boardController = {
   updateColumnOrderIdsBoard,
   getDetailBoardWithId,
   getPaginatedBoards,
+  getLatestDocuments,
   getResultSearchTitle
 }

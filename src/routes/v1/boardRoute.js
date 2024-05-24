@@ -11,4 +11,6 @@ Router.route('/search')
   .post(boardController.getResultSearchTitle)
 Router.route('/list-board')
   .post(boardController.getPaginatedBoards)
+Router.route('/list-board-public')
+  .post(boardController.getLatestDocuments)
 export const boardRouter =Router
