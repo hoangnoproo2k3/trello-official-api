@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ObjectId } from 'mongodb'
 
 const Joi = require('joi')
@@ -44,13 +45,16 @@ const createNewCard = async (data) => {
 }
 const updateCard = async (cardId, data) => {
   try {
-    const { error } = CARD_COLLECTION_SCHEMA.validate(data, { abortEarly: false })
-    if (error) {
-      throw new Error( { error: error.details.map(e => e.message) })
-    }
-    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne({ _id: new ObjectId(cardId) }, { $set: data, $currentDate: { updatedAt: true } })
+    const { _id, updatedAt, ...updatedData } = data
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(cardId) },
+      { $set: updatedData, $currentDate: { updatedAt: true } }
+    )
+
     return result
-  } catch (error) { throw new Error(error) }
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 const findOneByIdCard = async (id) => {
   try {
