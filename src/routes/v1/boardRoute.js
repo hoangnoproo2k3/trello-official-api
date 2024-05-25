@@ -15,4 +15,6 @@ Router.route('/list-board-public')
   .post(boardController.getLatestDocuments)
 Router.route('/join-board')
   .post(boardController.joinBoardWithMember)
+Router.route('/list-member')
+  .post(boardController.getListMembersInBoard)
 export const boardRouter =Router

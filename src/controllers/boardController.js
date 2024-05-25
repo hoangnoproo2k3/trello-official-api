@@ -111,6 +111,20 @@ const joinBoardWithMember = async( req, res, next) => {
     next(error)
   }
 }
+const getListMembersInBoard = async (req, res, next) => {
+  try {
+    const board = await boardModel.findOneByIdBoard(req.body.boardId)
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' })
+    }
+    const { ownerId, memberIds } = board
+    const users = await userModel.getMembersInBoard(ownerId, memberIds)
+    const userCount = users.length
+    res.status(StatusCodes.OK).json({ users, count: userCount, status: StatusCodes.OK })
+  } catch (error) {
+    next(error)
+  }
+}
 export const boardController = {
   createNewBoard,
   createNewBoardWithUser,
@@ -119,5 +133,6 @@ export const boardController = {
   getDetailBoardWithId,
   getPaginatedBoards,
   getLatestDocuments,
+  getListMembersInBoard,
   getResultSearchTitle
 }

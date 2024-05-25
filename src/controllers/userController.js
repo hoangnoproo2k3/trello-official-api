@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { boardModel } from '~/models/boardModel'
 import { userModel } from '~/models/userModel'
 
 const createNewUserWithGoogle = async (req, res, next) => {
@@ -45,7 +46,12 @@ const getListUsers = async (req, res, next) => {
 const getResultSearchUser = async (req, res, next) => {
   try {
     const searchTerm = req.query.q
-    const listBoards = await userModel.getSearchUser(searchTerm)
+    const board = await boardModel.findOneByIdBoard(req.body.boardId)
+    if (!board) {
+      return res.status(404).json({ message: 'Board not found' })
+    }
+    const { ownerId, memberIds } = board
+    const listBoards = await userModel.getSearchUser(searchTerm, ownerId, memberIds)
     return res.status(StatusCodes.OK).json({ getUsers: listBoards, status: StatusCodes.OK })
   } catch (error) {
     next(error)

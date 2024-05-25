@@ -69,6 +69,17 @@ const findOneByEmail = async (email) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const getMembersInBoard = async ( ownerId, memberIds) => {
+  const userQuery = {
+    $or: [
+      { _id: new ObjectId(ownerId) },
+      { _id: { $in: memberIds.map(id => new ObjectId(id)) } }
+    ]
+  }
+  const projection = { _id: 1, name: 1, email: 1, avatar: 1 }
+  const users = await GET_DB().collection(USER_COLLECTION_NAME).find(userQuery).project(projection).toArray()
+  return users
+}
 const getUsers = async (page, pageSize) => {
   let skip = 0
   let limit = 10
@@ -91,9 +102,11 @@ const getUsersCount = async () => {
     throw new Error('Error getting users count: ' + error.message)
   }
 }
-const getSearchUser = async (search) => {
+const getSearchUser = async (search, ownerId, memberIds) => {
+  const excludedUserIds = await getMembersInBoard(ownerId, memberIds)
   const filter = {
-    email: { $regex: search, $options: 'i' }
+    email: { $regex: search, $options: 'i' },
+    _id: { $nin: excludedUserIds.map(user => user._id) }
   }
   const projection = { _id: 1, name: 1, email: 1, avatar: 1 }
   const users = await GET_DB().collection(USER_COLLECTION_NAME).find(filter).project(projection).toArray()
@@ -108,6 +121,7 @@ export const userModel = {
   findOneByIdUser,
   findOneByEmail,
   getUsers,
+  getMembersInBoard,
   getSearchUser,
   getUsersCount
 }
