@@ -4,7 +4,11 @@ import { ObjectId } from 'mongodb'
 const Joi = require('joi')
 const { GET_DB } = require('~/config/mongodb')
 const { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } = require('~/utils/validators')
-
+const commentSchema = Joi.object({
+  name: Joi.string().required(),
+  date: Joi.date().required(),
+  content: Joi.string().required()
+})
 const CARD_COLLECTION_NAME = 'cards'
 const CARD_COLLECTION_SCHEMA = Joi.object({
   boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
@@ -15,9 +19,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
-  comments: Joi.array().items(
-    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
-  ).default([]),
+  comments: Joi.array().items(commentSchema).default([]),
   like: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
@@ -28,6 +30,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
+
 const checkNameCardExistence = async (title, columnId) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({ title, columnId })
@@ -112,6 +115,38 @@ const updateCardWithUserUnlike = async (cardId, userId) => {
     throw new Error('Error updating card with unlike: ' + error.message)
   }
 }
+const updateCardWithUserComment = async (cardId, otherProperties) => {
+  try {
+    const newComment = {
+      _id: new ObjectId(),
+      ...otherProperties,
+      date: new Date()
+    }
+
+    const filter = { _id: new ObjectId(cardId) }
+    const updateDoc = { $push: { comments: newComment } }
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Card not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating card with unlike: ' + error.message)
+  }
+}
+const deleteCommentInCard = async(cardId, commentId) => {
+  try {
+    const filter = { _id: new ObjectId(cardId) }
+    const updateDoc = { $pull: { comments: { _id: new ObjectId(commentId) } } }
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Card not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating card with unlike: ' + error.message)
+  }
+}
 export const cardModel = {
   CARD_COLLECTION_SCHEMA,
   CARD_COLLECTION_NAME,
@@ -122,5 +157,7 @@ export const cardModel = {
   getCardsWithColumn,
   updateCardsDndKit,
   updateCardWithUserLike,
-  updateCardWithUserUnlike
+  updateCardWithUserUnlike,
+  updateCardWithUserComment,
+  deleteCommentInCard
 }

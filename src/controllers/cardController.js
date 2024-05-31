@@ -82,6 +82,26 @@ const updateCardWithUserUnlike = async (req, res, next) => {
     next(error)
   }
 }
+const updateCardWithUserComment = async (req, res, next) => {
+  try {
+    await cardModel.updateCardWithUserComment(req.params.cardId, req.body)
+    const getColumn = await cardModel.findOneByIdCard(req.params.cardId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
+const deleteCommentInCard = async (req, res, next) => {
+  try {
+    await cardModel.deleteCommentInCard(req.params.cardId, req.body.commentID)
+    const getColumn = await cardModel.findOneByIdCard(req.params.cardId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
 export const cardController = {
   createNewCardWithBoard,
   getCards,
@@ -89,5 +109,7 @@ export const cardController = {
   getDetailCardWithId,
   updateCardWithDndKit,
   updateCardWithUserLike,
-  updateCardWithUserUnlike
+  updateCardWithUserUnlike,
+  updateCardWithUserComment,
+  deleteCommentInCard
 }
