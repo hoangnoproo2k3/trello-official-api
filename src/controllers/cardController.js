@@ -62,10 +62,32 @@ const updateCardWithDndKit =async (req, res, next) => {
     next(error)
   }
 }
+const updateCardWithUserLike = async (req, res, next) => {
+  try {
+    await cardModel.updateCardWithUserLike(req.body.cardId, req.body.userId)
+    const getColumn = await cardModel.findOneByIdCard(req.body.cardId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
+const updateCardWithUserUnlike = async (req, res, next) => {
+  try {
+    await cardModel.updateCardWithUserUnlike(req.body.cardId, req.body.userId)
+    const getColumn = await cardModel.findOneByIdCard(req.body.cardId)
+    res.status(StatusCodes.OK).json({ message: getColumn, status: StatusCodes.OK })
+  }
+  catch (error) {
+    next(error)
+  }
+}
 export const cardController = {
   createNewCardWithBoard,
   getCards,
   updateCard,
   getDetailCardWithId,
-  updateCardWithDndKit
+  updateCardWithDndKit,
+  updateCardWithUserLike,
+  updateCardWithUserUnlike
 }

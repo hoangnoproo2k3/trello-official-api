@@ -47,7 +47,9 @@ const findOneByIdBoard = async (id) => {
 const updateBoardWithColumn = async (boardID, newColumnId) => {
   try {
     const filter = { _id: new ObjectId(boardID) }
-    const updateDoc = { $push: { columnOrderIds: newColumnId } }
+    // $push: Thêm giá trị vào mảng bất kể giá trị đó có tồn tại trong mảng hay không
+    // const updateDoc = { $push: { columnOrderIds: newColumnId } }
+    const updateDoc = { $addToSet: { columnOrderIds: newColumnId } }
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).updateOne(filter, updateDoc)
     if (result.matchedCount === 0) {
       throw new Error('Board not found')

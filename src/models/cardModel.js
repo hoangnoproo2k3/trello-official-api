@@ -86,6 +86,32 @@ const updateCardsDndKit = async (cardId, columnId) => {
     throw new Error('Error updating board columns: ' + error.message)
   }
 }
+const updateCardWithUserLike= async (cardId, userId) => {
+  try {
+    const filter = { _id: new ObjectId(cardId) }
+    const updateDoc = { $addToSet: { like: userId } }
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Board not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating board columns: ' + error.message)
+  }
+}
+const updateCardWithUserUnlike = async (cardId, userId) => {
+  try {
+    const filter = { _id: new ObjectId(cardId) }
+    const updateDoc = { $pull: { like: userId } } // Sử dụng $pull để xóa userId khỏi mảng like
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).updateOne(filter, updateDoc)
+    if (result.matchedCount === 0) {
+      throw new Error('Card not found')
+    }
+    return result.modifiedCount > 0
+  } catch (error) {
+    throw new Error('Error updating card with unlike: ' + error.message)
+  }
+}
 export const cardModel = {
   CARD_COLLECTION_SCHEMA,
   CARD_COLLECTION_NAME,
@@ -94,5 +120,7 @@ export const cardModel = {
   updateCard,
   findOneByIdCard,
   getCardsWithColumn,
-  updateCardsDndKit
+  updateCardsDndKit,
+  updateCardWithUserLike,
+  updateCardWithUserUnlike
 }
